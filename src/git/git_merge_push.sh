@@ -1,15 +1,55 @@
 #!/bin/bash
 
-# 用于合并当前分支到目标分支，并推送到远程仓库，然后切换回原来的分支
+# 使用说明
 
-# ============== 使用：==============
-# 执行本地的 shell 脚本
-# chmod +x ./git_merge_push.sh # 添加执行权限
-# ./git_merge_push.sh -f test # 执行, -f 参数可以跳过commit msg 的输入, test 为要合并的目标分支名称，默认test
+# 本脚本用于自动化地合并当前分支到指定的目标分支，并将更改推送到远程仓库。
+# 在完成操作后，它会自动切换回原来的工作分支。
 
-# 执行远程的 shell 脚本
-# /bin/bash -c "$(curl -fsSL https://xxx.com/xxx/git_merge_push.sh)" -- "$@"
-# ===================================
+# 使用步骤：
+# 1. 添加执行权限（只需执行一次）：
+# chmod +x ./git_merge_push.sh
+
+# 2. 执行脚本：
+# ./git_merge_push.sh [-f] [分支名称]
+# 参数说明：
+# - -f：可选参数，如果使用此标志，脚本将不会提示输入提交信息，而是使用默认提交信息，并且不会要求确认改动。
+# - 分支名称：要合并到的目标分支，默认为'test'分支。
+
+# 示例：
+# 合并到默认的'test'分支并推送更改：
+# ./git_merge_push.sh
+
+# 合并到指定的'production'分支并推送更改：
+# ./git_merge_push.sh production
+
+# 强制提交到默认的'test'分支（不需要确认操作和提交信息）：
+# ./git_merge_push.sh -f
+
+# 强制提交到指定的'production'分支（不需要确认操作和提交信息）：
+# ./git_merge_push.sh -f production
+
+# 3. 你也可以通过远程执行脚本：
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/xbsheng/shell-utils/main/src/git/git_merge_push.sh)" -- [-f] [分支名称]
+
+# 4. 可以将脚本添加到你的.zshrc或.bashrc文件中作为一个函数，便于快速使用：
+# 将以下函数添加到你的.zshrc或.bashrc文件：
+# gmp() {
+#   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/xbsheng/shell-utils/main/src/git/git_merge_push.sh)" -- "$@"
+# }
+# 然后执行source ~/.zshrc或source ~/.bashrc来应用更改。
+# 之后，你可以使用gmp命令来执行脚本。
+
+# 脚本操作流程：
+# - 检查是否在Git仓库内
+# - 添加所有更改到暂存区
+# - 请求用户确认改动（除非使用了-f参数）
+# - 提交更改到当前分支
+# - 推送当前分支到远程仓库
+# - 切换到目标分支并拉取最新更改
+# - 合并当前分支到目标分支并推送
+# - 切换回原始分支
+
+# 注意：如果在合并过程中遇到任何问题，脚本将停止运行，并显示相应的错误消息。
 
 echo "
  
